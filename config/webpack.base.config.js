@@ -2,9 +2,16 @@
 const {resolve} = require('path')
 const webpack = require('webpack')
 const merge = require('webpack-merge')
+const autoprefixer = require('autoprefixer')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
 const OpenBrowserPlugin = require('open-browser-webpack-plugin')
 
+
+const postcssConfig = {
+  ident: 'postcss',
+  plugins: () => [
+  ]
+}
 // 项目访问端口
 const port = 8888
 
