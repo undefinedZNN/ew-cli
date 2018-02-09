@@ -45,8 +45,18 @@ module.exports = {
     rules: [
       // 解析ECMAScript代码
       {
-        test: /\.(js|jsx)$/,
+        test: /\.(js|jsx)$/i,
         use: ['babel-loader'],
+        exclude: /(node_modules|bower_components)/
+      },
+      // 解析less代码
+      {
+        test: /\.(less|css)$/i,
+        use: [
+          'style-loader',
+          'css-loader',
+          'less-loader'
+        ],
         exclude: /(node_modules|bower_components)/
       }
     ]
@@ -60,6 +70,7 @@ module.exports = {
     new HtmlWebpackPlugin({
       template: './index.html'
     }),
+    // 编译完成在再浏览器打开项目
     new OpenBrowserPlugin({ url: `http://localhost:${port}` })
   ],
   /******** webpack 解析配置 ********/ 
@@ -68,11 +79,6 @@ module.exports = {
     extensions: ['.web.js', '.js', '.json', '.jsx', '.less', '.css'],
     /*** 设置路径别名 ***/
     alias: {
-      Assets: resolve(__dirname, '../src/assets/'),
-      Containers: resolve(__dirname, '../src/containers/'),
-      Components: resolve(__dirname, '../src/components/'),
-      Stores: resolve(__dirname, '../src/stores/'),
-      Utils: resolve(__dirname, '../src/utils/'),
       '@': resolve(__dirname, '../src/')
     }
   }
