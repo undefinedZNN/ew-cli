@@ -26,6 +26,7 @@ module.exports = {
     // hotOnly: true,
     // open: true,
     port: port, // 服务端口
+    inline: true,
     // 和上文output的"publicPath"值保持一致
     publicPath: '/',
     host: '0.0.0.0',
@@ -51,10 +52,10 @@ module.exports = {
     ]
   },
   plugins: [
-    // 开启全局的模块热替换（HMR）
-    new webpack.HotModuleReplacementPlugin(),
     // 美化 console 输出
     new webpack.NamedModulesPlugin(),
+    // 开启全局的模块热替换（HMR）
+    new webpack.HotModuleReplacementPlugin(),
     // dist目录下生成html模板文件
     new HtmlWebpackPlugin({
       template: './index.html'
@@ -71,7 +72,8 @@ module.exports = {
       Containers: resolve(__dirname, '../src/containers/'),
       Components: resolve(__dirname, '../src/components/'),
       Stores: resolve(__dirname, '../src/stores/'),
-      Utils: resolve(__dirname, '../src/utils/')
+      Utils: resolve(__dirname, '../src/utils/'),
+      '@': resolve(__dirname, '../src/')
     }
   }
 }

@@ -1,12 +1,12 @@
 import React from 'react'
-import Test from 'Components/Test' 
+import Test from '@/components/Test' 
 
 export default class Home extends React.Component {
   render() {
     return (
       <div className=''>
         <Test/>
-        hello world!!
+        hello world ----)!)
         <input />
       </div>
     )

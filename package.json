@@ -1,6 +1,6 @@
 {
   "scripts": {
-    "dev": "webpack-dev-server --inline --config config/webpack.base.config.js"
+    "dev": "webpack-dev-server --config config/webpack.base.config.js"
   },
   "devDependencies": {
     "babel-core": "^6.26.0",
