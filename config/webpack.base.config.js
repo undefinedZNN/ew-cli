@@ -1,20 +1,7 @@
 'use strict'
-const {resolve} = require('path')
+const { resolve } = require('path')
 const webpack = require('webpack')
-const merge = require('webpack-merge')
-const autoprefixer = require('autoprefixer')
 const HtmlWebpackPlugin = require('html-webpack-plugin')
-const OpenBrowserPlugin = require('open-browser-webpack-plugin')
-
-
-const postcssConfig = {
-  ident: 'postcss',
-  plugins: () => [
-  ]
-}
-// 项目访问端口
-const port = 8888
-
 
 module.exports = {
   context: resolve(__dirname, '../src'),
@@ -23,31 +10,10 @@ module.exports = {
     // 输出的打包文件
     filename: '[name].js',
     // 输出文件路劲
-    path: resolve(__dirname, 'dist'),
+    path: resolve(__dirname, '../dist'),
     // 对于热替换（HMR）是必须的，让webpack知道在哪里载入热更新的模块（chunk）
     publicPath: '/'
   },
-  // 服务配置
-  devServer: {
-    hot: true,
-    // hotOnly: true,
-    // open: true,
-    port: port, // 服务端口
-    inline: true,
-    // 和上文output的"publicPath"值保持一致
-    publicPath: '/',
-    host: '0.0.0.0',
-    disableHostCheck: true, // 解决非本机无法访问
-    // 开启服务器的模块热替换（HMR）
-    // 开启服务器输出文件的路径
-    contentBase: resolve(__dirname, 'src'),
-  },
-  // 入口配置
-  entry: [
-    'babel-polyfill',
-    'react-hot-loader/patch',
-    './index.js',
-  ],
   module: {
     rules: [
       // 解析ECMAScript代码
@@ -56,29 +22,46 @@ module.exports = {
         use: ['babel-loader'],
         exclude: /(node_modules|bower_components)/
       },
-      // 解析less代码
       {
-        test: /\.(less|css)$/i,
-        use: [
-          'style-loader',
-          'css-loader',
-          'less-loader'
-        ],
-        exclude: /(node_modules|bower_components)/
+        test: /\.(png|jpe?g|gif|svg)(\?.*)?$/,
+        loader: 'url-loader',
+        options: {
+          limit: 10000,
+          name: 'img/[name].[hash:7].[ext]'
+        }
+      },
+      {
+        test: /\.(mp4|webm|ogg|mp3|wav|flac|aac)(\?.*)?$/,
+        loader: 'url-loader',
+        options: {
+          limit: 10000,
+          name: 'media/[name].[hash:7].[ext]'
+        }
+      },
+      {
+        test: /\.(woff2?|eot|ttf|otf)(\?.*)?$/,
+        loader: 'url-loader',
+        options: {
+          limit: 10000,
+          name: 'fonts/[name].[hash:7].[ext]'
+        }
+      },
+      {
+        test: /\.(svg)$/i,
+        loader: 'svg-sprite-loader',
+        include: [
+          require.resolve('antd').replace(/warn\.js$/, ''), // 1. 属于 antd-mobile 内置 svg 文件
+          resolve(__dirname, '../src/assets/svg/') // 2. 自己私人的 svg 存放目录
+        ]
       }
+
     ]
   },
   plugins: [
-    // 美化 console 输出
-    new webpack.NamedModulesPlugin(),
-    // 开启全局的模块热替换（HMR）
-    new webpack.HotModuleReplacementPlugin(),
     // dist目录下生成html模板文件
     new HtmlWebpackPlugin({
       template: './index.html'
     }),
-    // 编译完成在再浏览器打开项目
-    new OpenBrowserPlugin({ url: `http://localhost:${port}` })
   ],
   /******** webpack 解析配置 ********/ 
   resolve: {

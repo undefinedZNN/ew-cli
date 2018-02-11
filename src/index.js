@@ -1,7 +1,7 @@
-const React = require('react');
+const React = require('react')
 const ReactDOM = require('react-dom')
 import { AppContainer } from 'react-hot-loader'
-import Home from '@/containers/Home'
+import Pilot from './router'
 
 const render = (Component) => {
   ReactDOM.render(
@@ -12,12 +12,13 @@ const render = (Component) => {
   )
 }
 
-render(Home)
+render(Pilot)
+
 // 模块热替换的 API
 if (module.hot) {
   module.hot.accept(
     () => {
-      render(Home)
+      render(Pilot)
     }
   )
 }
