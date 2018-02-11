@@ -26,20 +26,7 @@ export default class App extends React.Component {
             <li><NavLink className='nav' to="/as">账户信息</NavLink></li>
             <li><NavLink className='nav' to="/km">开发配置</NavLink></li>
           </ul>
-
-          <div className='right-block'>
-            <div className='user-menu'>
-              <div className="split"></div>
-              <div className='dropdown-wrap'>
-                <div className="avatar">
-                  <span><i className="icon-touxiang"></i></span>
-                </div>
-                <div className="username">
-                  <a>znnn</a>
-                </div>
-              </div>
-            </div>
-          </div>
+          <div className="menu-login">1</div>
         </Header>
         <Content>
           {this.props.children}
