@@ -2,6 +2,7 @@
 const { resolve } = require('path')
 const webpack = require('webpack')
 const merge = require('webpack-merge')
+const antdTheme = require('./antdTheme')
 const autoprefixer = require('autoprefixer')
 const OpenBrowserPlugin = require('open-browser-webpack-plugin')
 const baseWebpackConfig = require('./webpack.base.config')
@@ -58,8 +59,8 @@ module.exports = merge(
           use: [
             'style-loader',
             'css-loader',
-            'less-loader',
-            { loader: 'postcss-loader', options: postcssConfig }
+            { loader: 'postcss-loader', options: postcssConfig },
+            { loader: 'less-loader', options: { modifyVars: antdTheme} },
           ]
         }
       ]

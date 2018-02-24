@@ -1,7 +1,8 @@
-const React = require('react')
-const ReactDOM = require('react-dom')
+import React from 'react'
+import ReactDOM from 'react-dom'
 import { AppContainer } from 'react-hot-loader'
 import Pilot from './router'
+import './style.less'
 
 const render = (Component) => {
   ReactDOM.render(

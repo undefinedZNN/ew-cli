@@ -1,0 +1,169 @@
+@pageMinWidth: 1280px; 
+@headerZindex: 10;
+
+.basic-layout {
+  ul,li,a {
+    margin: 0;
+    padding: 0;
+  }
+  /** header start  */
+  .basic-layout-header {
+    top: 0;
+    z-index: @headerZindex;
+    width: 100%;
+    height: 47px;
+    position: fixed;
+    line-height: 47px;
+    .basic-layout-header-wrap {
+      height: 47px;
+      min-width: @pageMinWidth;
+      margin: 0 auto;
+      .wowoo-logo {
+        width: 84px;
+        height: 29px;
+        margin-left: 40px;
+        display: inline-block;
+      }
+
+      .menu {
+        float: right;
+        // width: 936px;
+        text-align: right;
+        display: inline-block;
+        li {
+          .nav {
+            color: #777;
+            height: 100%;
+            font-size: 15px;
+            padding: 0 20px;
+            text-decoration: none;
+            display: inline-block;
+            &.active {
+              color: #494949;
+              background: #f7f7f7;
+            }
+          }
+          display: inline-block;
+        }
+      }
+
+      .menu-login {
+        float: right;
+        width: 214px;
+        font-size: 0;
+        margin-left: 5px;
+        vertical-align: top;
+        display: inline-block;
+        &:before {
+          content: ' ';
+          width:1px;
+          height:18px;
+          background:#d8d8d8;
+          border-radius:100px;
+          display: inline-block;
+          vertical-align: middle;
+        }
+
+        .icon-17 {
+          color: #0882ff;
+          font-size: 21px;
+          margin-left: 20px;
+          display: inline-block;
+          vertical-align: middle;
+        }
+
+        .icon-touxiang {
+          width: 21px;
+          height: 21px;
+          margin-left: 24px;
+          border-radius: 100%;
+          display: inline-block;
+          vertical-align: middle;
+          background-color: #60768d;
+          text-align: center;
+          &:before {
+            color: #fff;
+            font-size: 16px;
+            line-height: 21px;
+          }
+        }
+
+        .user-name {
+          color:#1689ff;
+          font-size:14px;
+          margin-left: 5px;
+          display: inline-block;
+          vertical-align: middle;
+        }
+      }
+    }
+  }
+  /** header end  */
+  /** sider start  */
+  .basic-layout-sider {
+    top: 47px;
+    height:40px;
+    width: 100%;
+    position: fixed;
+    background:#60768d;
+    z-index: @headerZindex;
+    .basic-layout-sider-wrap {
+      padding: 0;
+      height:40px;
+      font-size: 0;
+      width: @pageMinWidth;
+      line-height:0;
+      margin: 0 auto;
+      background-color: #60768d;
+      // background-color: blue;
+      .menu {
+        margin-left: 40px;
+        display: inline-block;
+        // width: 100%;
+        // float: left;
+        &.right {
+          margin: 0;
+          float: right;
+          display: block;
+          margin-right: 40px;
+        }
+        li {
+          display: inline-block;
+          .nav {
+            color: #fff;
+            font-size: 14px;
+            padding: 0 20px;
+            line-height: 40px;
+            text-decoration: none;
+            display: inline-block;
+            &.active {
+              background: #476079;
+            }
+          }
+
+          .badge {
+            width:15px;
+            height:15px;
+            font-size: 12px;
+            margin-left: 5px;
+            line-height: 15px;
+            padding-left: 3px;
+            border-radius: 5px;
+            background: #f00007;
+            display: inline-block;
+            vertical-align: baseline;
+          }
+        }
+      }
+    }
+  }
+  /** sider end */
+
+  /** content start */
+  .ant-layout-content {
+    width: 1200px;
+    margin: 0 auto;
+    margin-top: 107px; 
+  }
+  /** content end */
+}

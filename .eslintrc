@@ -21,7 +21,7 @@
     "array-bracket-spacing": [2, "never"],
     // 在块级作用域外访问块内定义的变量是否报错提示
     "block-scoped-var": 0,
-    "brace-style": [2, "stroustrup", { "allowSingleLine": false }],
+    "brace-style": [2, "1tbs", { "allowSingleLine": false }],
     // 双峰驼命名格式
     "camelcase": 2,
     // 数组和对象键值对最后一个逗号， never参数：不能带末尾的逗号, always参数：必须带末尾的逗号，
@@ -33,7 +33,7 @@
     // http://eslint.org/docs/rules/comma-style
     "comma-style": [2, "last"],
     // 圈复杂度
-    "complexity": [2,9],
+    "complexity": [0, 11],
     // 以方括号取对象属性时，[ 后面和 ] 前面是否需要空格, 可选参数 never, always
     "computed-property-spacing": [2,"never"],
     // 强制方法必须返回值，TypeScript强类型，不配置

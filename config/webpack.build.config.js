@@ -2,6 +2,7 @@
 const { resolve } = require('path')
 const webpack = require('webpack')
 const merge = require('webpack-merge')
+const antdTheme = require('./antdTheme')
 const autoprefixer = require('autoprefixer')
 const baseWebpackConfig = require('./webpack.base.config')
 const ExtractTextPlugin = require('extract-text-webpack-plugin')
@@ -42,8 +43,8 @@ module.exports = merge(
             fallback: 'style-loader',
             use: [
               'css-loader',
+              { loader: 'less-loader', options: { sourceMap: true, modifyVars: antdTheme} },
               { loader: 'postcss-loader', options: postcssConfig },
-              'less-loader'
             ]
           })
         },

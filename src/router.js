@@ -1,18 +1,18 @@
 import React from 'react'
 import { LocaleProvider } from 'antd'
 import zhCN from 'antd/lib/locale-provider/zh_CN'
-import { BrowserRouter, Route, Switch } from 'react-router-dom'
-import Home from '@/routes/Home'
+import { HashRouter as Router, Route, Switch } from 'react-router-dom'
+import Order from '@/routes/Order'
 
 export default class RouterConfig extends React.Component {
   render() {
     return (
       <LocaleProvider locale={zhCN}>
-        <BrowserRouter>
+        <Router>
           <Switch>
-            <Route path="/" component={Home}/>
+            <Route path="/" component={Order}/>
           </Switch>
-        </BrowserRouter>
+        </Router>
       </LocaleProvider>
     )
   }

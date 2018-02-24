@@ -1,0 +1,198 @@
+@import '~@/assets/style/icomoon.css';
+
+/** 默认公共样式 start */
+li {
+  list-style: none;
+}
+
+/** 默认公共样式 end */
+
+@keyframes fadeInDown {
+  from {
+    top:0;
+    opacity: 1;
+    transform: translateY(-100%);
+  }
+
+  to {
+    top:0;
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes fadeInUp {
+  from {
+    top:0;
+    opacity: 1;
+    transform: translateY(0%);
+  }
+
+  to {
+    top:0;
+    opacity: 1;
+    transform: translateY(-100%);
+  }
+}
+
+@keyframes fadeInDownToast {
+  from {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+
+  to {
+    opacity: 0.75;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInUpToast {
+  from {
+    opacity: 0.75;
+    transform: translateY(0);
+  }
+
+  to {
+    opacity: 0;
+    transform: translateY(-50px);
+  }
+}
+
+/** 全局消息弹窗样式 start */
+.wowoo-message {
+
+  z-index: 1000;
+  .wowoo-message-nocite {
+    top: 0;
+    color: #fff;
+    width: 100%;
+    height: 56px;
+    // z-index: 1000;
+    position: fixed;
+    font-size: 16px;
+    line-height: 56px;
+    padding-left: 50px;
+    // background-color: blue;
+    animation: fadeInDown 0.7s;
+    &.move-up {
+      transform: translateY(-100%);
+      animation: fadeInUp 0.7s;
+    }
+    &.error {
+      background:#f4665e;
+      &:before{
+        font-family: 'icomoon' !important;
+        speak: none;
+        font-style: normal;
+        font-weight: normal;
+        font-variant: normal;
+        text-transform: none;
+        line-height: 1;
+        font-size: 18px !important;
+        content: "\e909" !important;
+        margin-right: 10px;
+      }
+    }
+    &.ok {
+      background:#33a7fb;
+      &:before{
+        font-family: 'icomoon' !important;
+        speak: none;
+        font-style: normal;
+        font-weight: normal;
+        font-variant: normal;
+        text-transform: none;
+        line-height: 1;
+        font-size: 18px !important;
+        content: "\e91c" !important;
+        margin-right: 10px;
+      }
+    }
+  }
+
+  .wowoo-toast-nocite {
+    top: 45%;
+    left: 50%;
+    color: #fff;
+    width: 166px;
+    opacity: 0.75;
+    position: fixed;
+    border-radius: 2px;
+    margin-left: -83px;
+    text-align: center;
+    background: #000000;
+    padding: 8px 15px 8px 15px;
+    animation: fadeInDownToast 0.7s;
+    box-shadow: 0 0 4px 0 rgba(0,0,0,0.20);
+    &.move-up {
+      transform: translateY(-50px);
+      animation: fadeInUpToast 0.7s;
+    }
+  }
+}
+/** 全局消息弹窗样式 end */
+
+/** 全局加载样式 start */
+.public-loading {
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 9999;
+  position: fixed;
+  text-align: center;
+  .ant-spin {
+    top: 50%;
+    left: 50%;
+    display: block;
+    position: fixed;
+    font-size: 100px;
+    margin-top: -25px;
+    margin-left: -25px;
+  }
+}
+/** 全局加载样式 end */
+
+@keyframes slideInDown {
+  from {
+    top: -170px;
+  }
+
+  to {
+    top: 0px;
+  }
+}
+
+.slideInDown {
+  animation-name: slideInDown;
+}
+
+@keyframes slideInLeft {
+  from {
+    left:-230px;
+  }
+
+  to {
+    left:0;
+  }
+}
+
+.slideInLeft {
+  animation-name: slideInLeft;
+}
+
+.animated {
+  animation-duration: 1s;
+  animation-fill-mode: both;
+}
+
+.animated-short1 {
+  animation-duration: 0.7s;
+  animation-fill-mode: both;
+}
+
+.animated-short2 {
+  animation-duration: 0.4s;
+  animation-fill-mode: both;
+}

@@ -46,14 +46,14 @@ module.exports = {
           name: 'fonts/[name].[hash:7].[ext]'
         }
       },
-      {
-        test: /\.(svg)$/i,
-        loader: 'svg-sprite-loader',
-        include: [
-          require.resolve('antd').replace(/warn\.js$/, ''), // 1. 属于 antd-mobile 内置 svg 文件
-          resolve(__dirname, '../src/assets/svg/') // 2. 自己私人的 svg 存放目录
-        ]
-      }
+      // {
+      //   test: /\.(svg)(\?.*)?$/i,
+      //   loader: 'svg-sprite-loader',
+      //   include: [
+      //     require.resolve('antd').replace(/warn\.js$/, ''), // 1. 属于 antd-mobile 内置 svg 文件
+      //     resolve(__dirname, '../src/assets/svg/') // 2. 自己私人的 svg 存放目录
+      //   ]
+      // }
 
     ]
   },

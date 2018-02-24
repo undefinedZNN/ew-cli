@@ -1,0 +1,74 @@
+.component-dialog {
+  top: 0;
+  left: 0;
+  z-index: 100;
+  width: 100%;
+  height: 100%;
+  position: fixed;
+  .component-dialog-mask {
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.65);
+  }
+  .component-dialog-wrap {
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    position: fixed;
+    text-align: center;
+    // position: fixed;
+    > .component-dialog-content {
+      max-height: 100%;
+      width: auto;
+      position: relative;
+      display: inline-block;
+      background-color: #fff;
+      overflow: auto;
+      // 动效 start
+      animation-name: fadeInDown;
+      animation-duration: 0.4s;
+      animation-fill-mode: both;
+      // 动效 end
+      .component-dialog-header {
+        background-color: #fff;
+        top: 0;
+        width: 100%;
+        color: #999;
+        font-size: 18px;
+        overflow: hidden;
+        line-height: 18px;
+        margin-right: 20px;
+        padding: 20px 20px 34px 20px;
+        // position: absolute;
+        // margin-bottom: 34px;
+        .component-dialog-title {
+          text-align: left;
+        }
+        .component-dialog-close-button {
+          top: 20px;
+          right: 20px;
+          position: absolute;
+        }
+      }
+      .component-dialog-body {
+        width: 100%;
+        background-color: #fff;
+        // position: absolute;
+        // top: 38px;
+        overflow: auto;
+      }
+      .component-dialog-footer {
+        background-color: #fff;
+        width: 100%;
+        padding: 20px; 
+        .ant-btn {
+          &.cancel {
+            margin-right: 10px;
+          }
+        }
+      }
+    }
+  }
+}
+

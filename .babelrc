@@ -9,6 +9,6 @@
     "transform-runtime",
     "transform-decorators-legacy",
     "transform-async-to-generator",
-    ["import", { "libraryName": "antd", "libraryDirectory": "es", "style": "css" }]
+    ["import", { "libraryName": "antd", "style": true }]
   ]
 }
