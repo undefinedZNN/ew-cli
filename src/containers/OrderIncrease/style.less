@@ -100,7 +100,21 @@
     }
   }
 }
-/** 顶部工具栏目 start */
+/** 顶部工具栏目 end */
+
+/** 选中所有订单 start  */
+.check-all-wrap {
+  margin-left: 20px;
+  margin-bottom: 11px;
+  color: #ccc;
+  a {
+    &.disabled {
+      color: #ccc;
+      cursor: not-allowed;
+    }
+  }
+}
+/** 选中所有订单 end  */
 
 /** 订单列表项样式 start */
 .order-info-item {
@@ -133,6 +147,9 @@
       }
       &:first-child {
         margin-left: 0;
+      }
+      .ant-checkbox-wrapper {
+        margin-right: 10px; 
       }
     }
   }

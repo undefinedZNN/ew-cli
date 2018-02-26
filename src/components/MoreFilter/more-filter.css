@@ -200,3 +200,36 @@
   background-color: transparent;
   font-family: 'icomoon' !important;
 }
+
+/** 更多选项动画 start */
+@keyframes slideInLeft {
+  from {
+    left:-230px;
+  }
+
+  to {
+    left:0;
+  }
+}
+
+.nav-silde-fixed.slideInLeft {
+  animation: slideInLeft 0.7s;
+  animation-fill-mode: both;
+}
+
+
+@keyframes slideOutLeft {
+  from {
+    left: 0px;
+  }
+
+  to {
+    left: -230px;
+  }
+}
+
+.nav-silde-fixed.slideOutLeft {
+  animation: slideOutLeft 0.7s;
+  animation-fill-mode: both;
+}
+/** 更多选项动画 end */

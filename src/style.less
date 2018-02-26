@@ -61,14 +61,13 @@ li {
 
 /** 全局消息弹窗样式 start */
 .wowoo-message {
-
   z-index: 1000;
   .wowoo-message-nocite {
     top: 0;
     color: #fff;
     width: 100%;
     height: 56px;
-    // z-index: 1000;
+    z-index: 1000;
     position: fixed;
     font-size: 16px;
     line-height: 56px;
@@ -117,6 +116,7 @@ li {
     color: #fff;
     width: 166px;
     opacity: 0.75;
+    z-index: 1000;
     position: fixed;
     border-radius: 2px;
     margin-left: -83px;
@@ -154,45 +154,38 @@ li {
 }
 /** 全局加载样式 end */
 
-@keyframes slideInDown {
-  from {
-    top: -170px;
-  }
-
-  to {
-    top: 0px;
-  }
+.filter-calendar input{
+  height: 39px;
+  border: 0px;
+  border-bottom: 1px solid #ebebeb !important;
 }
 
-.slideInDown {
-  animation-name: slideInDown;
+.filter-calendar{
+  width: 100%;
 }
 
-@keyframes slideInLeft {
-  from {
-    left:-230px;
-  }
+.filter-calendar .ant-input:hover{
+  border-color: #ebebeb;
+} 
 
-  to {
-    left:0;
-  }
+.filter-calendar .ant-calendar-picker-icon{
+  left: 12px;
 }
 
-.slideInLeft {
-  animation-name: slideInLeft;
+.filter-calendar .ant-input{
+  padding-left: 40px;
 }
 
-.animated {
-  animation-duration: 1s;
-  animation-fill-mode: both;
+button.cancel{
+  border: 0px;
+  color: #484848;
 }
 
-.animated-short1 {
-  animation-duration: 0.7s;
-  animation-fill-mode: both;
+button.cancel:hover{
+  color: #484848;
+  background-color: #e6e6e6;
 }
 
-.animated-short2 {
-  animation-duration: 0.4s;
-  animation-fill-mode: both;
+button.cancel:active, button.cancel:focus{
+  color: #484848;
 }

@@ -4,6 +4,7 @@ import { errorMsg } from '@/utils/tools'
 axios.interceptors.response.use(function (response) {
   let data = response.data
   if (data.code !== '200' && data.code !== 200) {
+    console.log('请求-------', data)
     if (data.msg !== '') {
       errorMsg(data.msg)
     }
@@ -15,7 +16,7 @@ axios.interceptors.response.use(function (response) {
         // window.location.href = Functions.getSso()
       }, 2000)
     }
-    return
+    return Promise.reject(data)
   } else {
     return data.result
   }
