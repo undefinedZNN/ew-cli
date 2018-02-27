@@ -31,7 +31,8 @@ function confirm (props) {
    * @return {[type]} [description]
    */
   const funOnOk = async () => {
-    confirmEl.setState({confirmLoading: true})
+    // confirmEl.setState({confirmLoading: true}) // 开启按钮加载动画
+    confirmEl.setState({confirmDisabled: true})
     if (typeof onOk === 'function') {
       await onOk(confirmEl)
     }
@@ -49,8 +50,10 @@ function confirm (props) {
 
 export default class ComponentDialog extends React.Component {
   state = {
-    confirmLoading: this.props.confirmLoading === 'undefined' ? false : this.props.confirmLoading
+    confirmLoading: this.props.confirmLoading === 'undefined' ? false : this.props.confirmLoading,
+    confirmDisabled: this.props.confirmDisabled === 'undefined' ? false : this.props.confirmDisabled
   }
+
   static confirm = confirm
   /**
    * 隐藏当前弹窗
@@ -84,7 +87,7 @@ export default class ComponentDialog extends React.Component {
 
   render() {
     let {bodyStyle, cancelText, closable, footer, footerHeight, mask, maskStyle, okText, title, headerHeight, visible, width, zIndex, className, style} = this.props
-    let {confirmLoading} = this.state
+    let {confirmLoading, confirmDisabled} = this.state
     cancelText = cancelText ? cancelText : '取消'
     okText = okText ? okText : '确认'
 
@@ -138,7 +141,7 @@ export default class ComponentDialog extends React.Component {
     let footerDom = (
       <div>
         <Button className='cancel' onClick={this.close} style={{ width: 140 }} >{cancelText}</Button>
-        <Button type='primary' loading={confirmLoading} onClick={this.ok} style={{ width: 140, marginRight: 20 }} >{okText}</Button>
+        <Button type='primary' loading={confirmLoading} onClick={this.ok} style={{ width: 140, marginRight: 20 }} disabled={confirmDisabled ? true : undefined}>{okText}</Button>
       </div>
     )
     if (typeof footer !== 'undefined') {

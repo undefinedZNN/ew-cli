@@ -130,14 +130,21 @@
         li {
           display: inline-block;
           .nav {
-            color: #fff;
-            font-size: 14px;
-            padding: 0 20px;
-            line-height: 40px;
-            text-decoration: none;
-            display: inline-block;
+            .ant-badge {
+              color: #fff;
+              font-size: 14px;
+              padding: 0 20px;
+              line-height: 40px;
+              text-decoration: none;
+              display: inline-block;
+              .ant-badge-dot {
+                box-shadow: 0 0 0 1px #f5222d;
+              }
+            }
             &.active {
-              background: #476079;
+              .ant-badge {
+                background: #476079;
+              }
             }
           }
 

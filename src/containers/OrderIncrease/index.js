@@ -1,23 +1,39 @@
 import './style.less'
+import _ from 'lodash'
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Input, Button, List, Checkbox } from 'antd'
-import { increaseOrderQuery, recruitOverOrder } from '@/services/order'
-import { errorMsg } from '@/utils/tools'
-import Dialog from '@/components/Dialog'
-import MoreFilter from '@/components/MoreFilter'
+import { Input, Button, List, Checkbox, Tag, Alert, Select } from 'antd'
 
+import Dialog from '@/components/Dialog'
+import { publicLoading } from '@/utils/tools'
+import MoreFilter from '@/components/MoreFilter'
+import Carousel from '@/components/Carousel'
+import Material from '@/components/Carousel/material'
+import { increaseOrderQuery, recruitOverOrder, failReason, confirmFail } from '@/services/order'
 export default class OrderIncrease extends React.Component {
   state = {
+    isDeclareInfoVisible: true,
     checkedList: [], // 选中的订单索引
     showFilter: false, // 更多筛选组件隐藏显示
-    orderList: []
+    orderList: [], // 订单列表
+    filterReq: [] // 筛选结果
   }
   // 第一次 render前执行
   componentWillMount () {
     this.getList()
   }
-
+  // {key: item.corporationId, value: item.fullName + (item.contacts || item.legalPerson ? ` (${item.contacts || item.legalPerson})` : ''), group: '认证企业'}
+  // getMoreData = () => {
+  //   let list = [
+  //     {key: '1', value: '1', group: 'number'},
+  //     {key: '2', value: '2', group: 'number'},
+  //     {key: '3', value: '3', group: 'number'},
+  //     {key: '4', value: '4', group: 'number'},
+  //     {key: '5', value: '5', group: 'number'},
+  //     {key: '6', value: '6', group: 'number'}
+  //   ]
+  //   return list
+  // }
   // 更多筛选项
   filterItems = [
     {
@@ -25,7 +41,7 @@ export default class OrderIncrease extends React.Component {
       selected: [],
       list: [
         {
-          value: '社保',
+          value: '社保社保社保社保社保社保社保社保社保社保社保社保社保社保社保社保社保社保社保社保社保社保社保社保社保社保社保',
           key: '1'
         },
         {
@@ -127,8 +143,8 @@ export default class OrderIncrease extends React.Component {
           <div className="order-detail">
             <div className="col userInfo">
               <h3>{item.name}</h3>
-              <p>身份证    {item.idCard}</p>
-              <p>手机号码  {item.mobile}</p>
+              <p>身份证:&nbsp;&nbsp;&nbsp;&nbsp; {item.idCard}</p>
+              <p>手机号码: {item.mobile}</p>
             </div>
             <div className="col">
               <p>缴纳城市：{item.cityMap.value}</p>
@@ -144,8 +160,11 @@ export default class OrderIncrease extends React.Component {
             <ul className="col operation undashed">
               <li><a> 增员完成 </a></li>
               <li><a> 申报材料 </a></li>
-              <li><a> 申报失败 </a></li>
+              <li><a onClick={() => this.failDeclare(index)}> 申报失败 </a></li>
             </ul>
+            <div className="col undashed status">
+              <Tag className={item.material.isRead === 0 ? 'tag-red' : 'tag-gray'}>{item.material.isReadMap.value}</Tag>
+            </div>
           </div>
         </div>
         <div className="order-info-item-footer gray">订单内未提交申报项: {item.toDecalareInsurances}</div>
@@ -166,15 +185,6 @@ export default class OrderIncrease extends React.Component {
    */
   closeFilter = () => {
     this.setState({showFilter: false})
-  }
-
-  /**
-   * 筛选更新内容回调
-   * @param  {[type]} filterItems [description]
-   * @return {[type]}             [description]
-   */
-  saveFilter = (filterItems) => {
-    console.log('saveFilter', filterItems)
   }
 
   /**
@@ -242,11 +252,151 @@ export default class OrderIncrease extends React.Component {
     })
   }
 
+  /**
+   * 申报指定订单失败
+   * @param  {[type]} index 操作订单索引
+   * @return {[type]}       [description]
+   */
+  failDeclare = (index) => {
+    publicLoading(true)
+    let failReasionList = []
+    let {orderList} = this.state
+    let Option = Select.Option
+    let selectedIndex = 0
+    let options = []
+    failReason({id: orderList[index].orderId}).then((res) => {
+      publicLoading(false)
+      failReasionList = res.failReasionList
+      failReasionList.map((item, reasonIndex) => {
+        options.push(<Option key={reasonIndex} value={reasonIndex}>{item.failreasonName}</Option>)
+      })
+
+      let failDeclareMsg = (
+        <div className="increase-fail-declare-body">
+          <h3>申报失败原因</h3>
+          <div>
+            <span>选择失败原因 </span>
+            <Select defaultValue={selectedIndex} onChange={value => {
+              selectedIndex = value
+            }}>
+              {options}
+            </Select>
+          </div>
+          <p>确认提交后相关费用将会退回给用户，该订单结束。</p>
+        </div>
+      )
+
+      Dialog.confirm({
+        content: failDeclareMsg,
+        onCancel: (e) => {
+          console.log('onCancel', e)
+        },
+        onOk: (e) => {
+          console.log('onOk', failReasionList[selectedIndex])
+          return new Promise((resolve, reject) => {
+            confirmFail({failReason: failReasionList[selectedIndex].failReason, id: orderList[index].orderId}).then(() => {
+              orderList = _.drop(orderList, (index + 1))
+              this.setState({orderList})
+              resolve()
+            }).catch(() => {
+              resolve()
+            })
+          })
+        },
+        width: '400px'
+      })
+    })
+  }
+  /**
+   * 渲染筛选内容tag
+   * @return {[type]} [description]
+   */
+  rendeFilterReqItem = () => {
+    const {filterReq} = this.state
+    let boms = []
+    filterReq.map((ov, index) => {
+      if (ov.type === 'checkbox' || ov.type === 'radio' || ov.type === 'search') {
+        // 数据量大建议换种方法实现, 此方法效率较低
+        ov.selected.map((item, i) => {
+          let itemObj = {}
+          if (typeof ov.parent === 'undefined') {
+            itemObj = ov.list.find((value, index, arr) => {
+              if (value.key === item) {
+                return true
+              }
+              return false
+            })
+          } else {
+            let selectedIndex = filterReq[ov.parent].selected[0]
+            itemObj = ov.list[selectedIndex].find((value, index, arr) => {
+              if (value.key === item) {
+                return true
+              }
+              return false
+            })
+          }
+          boms.push(<Alert className='filter-item-tag' key={i + ':' + Math.random().toString(36).substr(2) } message={ov.name + ':' + (ov.type === 'search' && itemObj.value.length > 10 ? itemObj.value.substring(0, 9) + '...' : itemObj.value)} type="success" onClose={() => this.unSetFilterReqItem(index, i)} closable/>)
+          return true
+        })
+      }
+      if (ov.type === 'dateRange') {
+        if (ov.selected.length > 0) {
+          let selected = ov.selected[0]
+          boms.push(<Alert className='filter-item-tag' key={0 + ':' + Math.random().toString(36).substr(2) } message={ov.name + ':' + (selected.startValue || '/') + '—' + (selected.endValue || '/')} type="success" onClose={() => this.unSetFilterReqItem(index, 0)} closable/>)
+        }
+      }
+      if (ov.type === 'time') {
+        if (ov.selected.length > 0) {
+          let selected = ov.selected[0]
+          boms.push(<Alert className='filter-item-tag' key={0 + ':' + Math.random().toString(36).substr(2) } message={ov.name + ':' + selected} type="success" onClose={() => this.unSetFilterReqItem(index, 0)} closable/>)
+        }
+      }
+      return true
+    })
+    if (boms.length > 0) {
+      boms.push(<a key='quid' onClick={this.unSetAllFilterReqItem}>取消筛选</a>)
+    }
+    return boms
+  }
+
+  /**
+   * 筛选更新内容回调
+   * @param  {[type]} filterItems [description]
+   * @return {[type]}             [description]
+   */
+  saveFilter = (filterItems) => {
+    this.setState({filterReq: filterItems})
+  }
+
+  afterChange = () => {
+    return
+  }
+  /**
+   * 渲染幻灯片
+   * @param  {[type]} item [description]
+   * @return {[type]}      [description]
+   */
+  carouselRenderItem = (item, index) => {
+    item.material.residenceNatureMap = item.material.residenceNatureMap ? item.material.residenceNatureMap : {key: '', value: ''}
+    item.material.residenceCityMap = item.material.residenceCityMap ? item.material.residenceCityMap : {key: '', value: ''}
+    return (
+      <Material item = {{ increase: item}} index={index} />
+    )
+  }
   render() {
     const { orderList, showFilter, checkedList } = this.state
-    // <Dialog visible={true} title={null}>11111111111</Dialog>
     return (
       <div className="container-order-increase">
+        <Carousel
+          onClose={() => {
+            this.setState({isDeclareInfoVisible: false})
+          }}
+          afterChange={(current) => {this.afterChange(current)}}
+          visible={isDeclareInfoVisible}
+          dataSource={orderList}
+          renderItem={ (item, index) => this.carouselRenderItem(item, index) }
+          initialSlide={declareInfoInitialSlide}
+        />
         <MoreFilter show={showFilter} filterItems={this.filterItems} closeFilter={this.closeFilter} saveFilter={this.saveFilter} />
         <div className="content">
           <div className="toolbar">
@@ -263,6 +413,7 @@ export default class OrderIncrease extends React.Component {
               <a>导出EXCEL</a>
             </div>
             <br/>
+            {this.rendeFilterReqItem()}
           </div>
           <div className="check-all-wrap">
             <Checkbox onChange={this.onCheckAllChange}> 全选</Checkbox> <span>已选中{checkedList.length}条</span> <a onClick={this.batchIncrease} className={checkedList.length <= 0 ? 'disabled' : ''}>批量增员完成</a>

@@ -36,7 +36,7 @@ export default class RouterConfig extends React.Component {
         type: 'right',
         badge: 100,
         title: '下载列表',
-        path: 'http://localhost:8888/#/'
+        path: '/1'
       }
     ]
     return (

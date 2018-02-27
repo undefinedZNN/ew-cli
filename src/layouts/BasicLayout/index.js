@@ -1,6 +1,6 @@
 import './style.less'
 import React from 'react'
-import { Layout, Spin } from 'antd'
+import { Layout, Spin, Badge } from 'antd'
 import { NavLink } from 'react-router-dom'
 import wologo from '@/assets/img/wologo.png'
 const { Header, Content } = Layout
@@ -37,21 +37,24 @@ export default class App extends React.Component {
       key++
       let itemLink
       let itemBadge = parseInt(item.badge, 2)
-      let Badge
-      if (isNaN(itemBadge) || itemBadge === 0) {
-        itemBadge = ''
-      } else if (itemBadge < 9) {
-        itemBadge = '···'
-      } else {
-        itemBadge = ''
+      if (isNaN(itemBadge)) {
+        itemBadge = 0
       }
-      if (itemBadge !== '') {
-        Badge = (<i className="badge">{itemBadge}</i>)
-      }
+      // let Badge
+      // if (isNaN(itemBadge) || itemBadge === 0) {
+      //   itemBadge = ''
+      // } else if (itemBadge < 9) {
+      //   itemBadge = '···'
+      // } else {
+      //   itemBadge = ''
+      // }
+      // if (itemBadge !== '') {
+      //   Badge = (<i className="badge">{itemBadge}</i>)
+      // }
       if(match.test(item.path)) {
-        itemLink = (<li key={key}><a className="nav" href={item.path}>{item.title}{Badge}</a></li>)
+        itemLink = (<li key={key}><a className="nav" href={item.path}><Badge offset={[18, 4]} dot={itemBadge > 0}>{item.title}</Badge></a></li>)
       } else {
-        itemLink = (<li key={key}><NavLink className="nav" to={item.path}>{item.title}{Badge}</NavLink></li>)
+        itemLink = (<li key={key}><NavLink className="nav" to={item.path}><Badge offset={[18, 4]} dot={itemBadge > 0}>{item.title}</Badge></NavLink></li>)
       }
 
       if (item.type === 'right') {

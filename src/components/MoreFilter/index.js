@@ -326,9 +326,7 @@ export default class MoreFlter extends React.Component {
                             <div >
                               <Input prefix={<Icon type="search" style={{ color: 'rgba(0,0,0,.25)' }}/>} onChange={onChange} />
                               <div className="result-list">
-                                <RadioGroup style={{ width: '100%' }} onChange={(value) => {
-                                  this.onChangeRadioGroup(value, i)
-                                }}>
+                                <RadioGroup style={{ width: '100%' }} value={item.selected[0]} onChange={(value) => this.onChangeRadioGroup(value, i)}>
                                   {
                                     (
                                       () => {
@@ -338,14 +336,7 @@ export default class MoreFlter extends React.Component {
                                           if (typeof groups[listItem.group] === 'undefined') {
                                             groups[listItem.group] = []
                                           }
-                                          let checked = false
-                                          for(let j = 0; j < item.selected.length; j++) {
-                                            if(item.selected[j] === listItem.key) {
-                                              checked = true
-                                              break
-                                            }
-                                          }
-                                          groups[listItem.group].push({...listItem, checked})
+                                          groups[listItem.group].push({...listItem})
                                           return true
                                         })
 
@@ -355,7 +346,7 @@ export default class MoreFlter extends React.Component {
                                           doms.push(<ul key={'group-list' + index} className="result-list-group-list">
                                             {
                                               (() => group.map((v, k) => {
-                                                return (<li key={k} ><Radio key={k} value={v.key} checked={v.checked} >{v.value}</Radio></li>)
+                                                return (<li key={k} ><Radio key={k} value={v.key}>{v.value}</Radio></li>)
                                               }))()
                                             }
                                           </ul>)
