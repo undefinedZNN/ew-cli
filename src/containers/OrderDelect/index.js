@@ -2,24 +2,20 @@ import './style.less'
 import _ from 'lodash'
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Input, Button, List, Checkbox, Tag, Alert, Select } from 'antd'
+import { Input, Button, List, Checkbox, Alert } from 'antd'
 
 import { windowScrollTheEnd, recoverWindowScrollTheEnd } from '@/utils/utils'
 import { publicLoading, toast } from '@/utils/tools'
 import Dialog from '@/components/Dialog'
 import NoData from '@/components/NoData'
-import Carousel from '@/components/Carousel'
 import MoreFilter from '@/components/MoreFilter'
-import Material from '@/components/Carousel/material'
-import { increaseOrderQuery, recruitOverOrder, failReason, confirmFail, moreScreening, addOrderDownload } from '@/services/order'
+import { getReduceOrder, moreScreening, addOrderDownload, reduceComplete } from '@/services/order'
 import OrderDetailInfo from '@/containers/OrderDetailInfo'
 import { Route, Switch } from 'react-router-dom'
 
-export default class OrderIncrease extends React.Component {
+export default class OrderDelect extends React.Component {
   routePath = this.props.match.path // 当前路由地址
   state = {
-    declareInfoInitialSlide: 0,
-    isDeclareInfoVisible: false,
     checkedList: [], // 选中的订单索引
     showFilter: false, // 更多筛选组件隐藏显示
     orderList: [], // 订单列表
@@ -57,16 +53,6 @@ export default class OrderIncrease extends React.Component {
       type: 'checkbox'
     },
     {
-      name: '派单日期',
-      selected: [],
-      range: ['2017-01-01', '2050-12-31'],
-      dateFormat: 'YYYY-MM-DD',
-      startHint: '选择开始日期',
-      endHint: '选择结束日期',
-      list: [],
-      type: 'dateRange'
-    },
-    {
       name: '缴纳月份',
       selected: [],
       dateFormat: 'YYYY-MM',
@@ -81,28 +67,6 @@ export default class OrderIncrease extends React.Component {
         {key: '0', vlaue: 0}
       ],
       type: 'checkbox'
-    },
-    {
-      name: '阅读状态',
-      selected: [],
-      list: [
-        {key: -1, value: '全部'},
-        {key: '0', value: '未读'},
-        {key: '1', value: '已读'}
-      ],
-      type: 'radio'
-    },
-    {
-      name: '未提交项',
-      selected: [],
-      list: [],
-      type: 'checkbox'
-    },
-    {
-      name: '取消标记',
-      selected: [],
-      list: [],
-      type: 'radio'
     }
   ]
 
@@ -149,7 +113,7 @@ export default class OrderIncrease extends React.Component {
       })
     }
     // console.log(errorMsg)
-    increaseOrderQuery(formData).then((res) => {
+    getReduceOrder(formData).then((res) => {
       if (res.list) {
         orderList = orderList.concat(res.list)
       }
@@ -164,21 +128,20 @@ export default class OrderIncrease extends React.Component {
    * @return {[type]}      [description]
    */
   renderItem = (item, index) => {
-    item.applyProductMap = {...{value: ''}, ...item.applyProductMap}
+    // item.applyProductMap = {...{value: ''}, ...item.applyProductMap}
     return (
       <div className="order-info-item">
         <div className="order-info-item-title">
           <div className="title-item black">
             <Checkbox value={index}></Checkbox>
-            {item.cancelOrderMark === 2 ? (<Tag className="tag-blue">经驳回</Tag>) : ''}
-            商户订单号: {item.orderNo}
-            <Link to={this.routePath + '/detail/' + item.orderId}> 查看详情 </Link>
+            商户订单号: {item.reduceOrderNo}
+            <Link to={this.routePath + '/detail/' + item.lastOrderId}> 查看详情 </Link>
           </div>
           <div className="title-item">
-            缴纳金额：{item.vPayAmount}元
+            缴纳金额：{item.payAmount}元
           </div>
           <div className="title-item">
-            服务费：{item.vendorServiceFee}元
+            服务费：{item.vendorServiceFree}元
           </div>
         </div>
         <div className="order-info-item-body">
@@ -189,27 +152,22 @@ export default class OrderIncrease extends React.Component {
               <p>手机号码: {item.mobile}</p>
             </div>
             <div className="col">
-              <p>缴纳城市：{item.cityMap.value}</p>
-              <p>申报名称：{item.applyProductMap.value}</p>
+              <p>缴纳城市：{item.cityCode}</p>
+              <p>申报名称：{item.productName}</p>
             </div>
             <div className="col">
               <p>申报基数：{item.applyBase}</p>
-              <p>派单日期：{item.dispatchDateFormat}</p>
+              <p>最后缴纳月：{item.maxPayMonth}</p>
+              <p>离职日期：{item.leavinDay}</p>
             </div>
             <div className="col undashed">
-              <p>缴纳月：{item.payMonth}</p>
+              <p>离职原因：{item.reasonsForLeavin}</p>
             </div>
             <ul className="col operation undashed">
-              <li><a onClick={() => this.increase(index)}> 增员完成 </a></li>
-              <li><a onClick={() => this.showDeclareInfo(index)}> 申报材料 </a></li>
-              <li><a onClick={() => this.failDeclare(index)}> 申报失败 </a></li>
+              <li><a onClick={() => this.delect(index)}> 减员完成 </a></li>
             </ul>
-            <div className="col undashed status">
-              <Tag className={item.material.isRead === 0 ? 'tag-red' : 'tag-gray'}>{item.material.isReadMap.value}</Tag>
-            </div>
           </div>
         </div>
-        <div className="order-info-item-footer gray">订单内未提交申报项: {item.toDecalareInsurances}</div>
       </div>
     )
   }
@@ -257,10 +215,10 @@ export default class OrderIncrease extends React.Component {
   }
 
   /**
-   * 批量增员订单
+   * 批量减员订单
    * @return {[type]} [description]
    */
-  batchIncrease = () => {
+  batchDelect = () => {
     let {checkedList, orderList} = this.state
     if(checkedList.length === 0) {
       return
@@ -275,13 +233,19 @@ export default class OrderIncrease extends React.Component {
         console.log('onCancel', e)
       },
       onOk: (e) => {
-        let list = []
+        let formData = {
+          applyIdList: [],
+          idList: [],
+          unpaidOrderIdList: []
+        }
         checkedList.map(ov => {
-          list.push({id: orderList[ov].orderId})
+          formData.applyIdList.push({applyId: orderList[ov].applyId})
+          formData.idList.push({id: orderList[ov].id})
+          formData.unpaidOrderIdList.push({unpaidOrderId: orderList[ov].unpaidOrderId})
         })
         // recruitOverOrder()
         return new Promise((resolve, reject) => {
-          recruitOverOrder({orderList: list}).then(() => {
+          reduceComplete(formData).then(() => {
             toast('操作成功')
             resolve()
           }).catch((err) => {
@@ -296,10 +260,10 @@ export default class OrderIncrease extends React.Component {
   }
 
   /**
-   * 增员订单
+   * 减员
    * @return {[type]} [description]
    */
-  increase = (index) => {
+  delect = (index) => {
     Dialog.confirm({
       content: (<div>
         请确认已经处理完毕<br/>
@@ -309,78 +273,28 @@ export default class OrderIncrease extends React.Component {
         console.log('onCancel', e)
       },
       onOk: (e) => {
-        let list = []
+        let formData = {
+          applyIdList: [],
+          idList: [],
+          unpaidOrderIdList: []
+        }
         let {orderList} = this.state
-        list.push({id: orderList[index].orderId})
+        formData.applyIdList.push({applyId: orderList[index].applyId})
+        formData.idList.push({id: orderList[index].id})
+        formData.unpaidOrderIdList.push({unpaidOrderId: orderList[index].unpaidOrderId})
         // recruitOverOrder()
         return new Promise((resolve, reject) => {
-          recruitOverOrder({orderList: list}).then(() => {
+          reduceComplete(formData).then(() => {
             toast('操作成功')
             orderList = _.drop(orderList, (index + 1))
             this.setState({orderList})
             resolve()
-          }).catch((err) => {
-            console.log('222------', err)
+          }).catch(() => {
             resolve()
           })
         })
       },
       width: '400px'
-    })
-  }
-  /**
-   * 申报指定订单失败
-   * @param  {[type]} index 操作订单索引
-   * @return {[type]}       [description]
-   */
-  failDeclare = (index) => {
-    publicLoading(true)
-    let failReasionList = []
-    let {orderList} = this.state
-    let Option = Select.Option
-    let selectedIndex = 0
-    let options = []
-    failReason({id: orderList[index].orderId}).then((res) => {
-      publicLoading(false)
-      failReasionList = res.failReasionList
-      failReasionList.map((item, reasonIndex) => {
-        options.push(<Option key={reasonIndex} value={reasonIndex}>{item.failreasonName}</Option>)
-      })
-
-      let failDeclareMsg = (
-        <div className="increase-fail-declare-body">
-          <h3>申报失败原因</h3>
-          <div>
-            <span>选择失败原因 </span>
-            <Select defaultValue={selectedIndex} onChange={value => {
-              selectedIndex = value
-            }}>
-              {options}
-            </Select>
-          </div>
-          <p>确认提交后相关费用将会退回给用户，该订单结束。</p>
-        </div>
-      )
-
-      Dialog.confirm({
-        content: failDeclareMsg,
-        onCancel: (e) => {
-          console.log('onCancel', e)
-        },
-        onOk: (e) => {
-          console.log('onOk', failReasionList[selectedIndex])
-          return new Promise((resolve, reject) => {
-            confirmFail({failReason: failReasionList[selectedIndex].failReason, id: orderList[index].orderId}).then(() => {
-              orderList = _.drop(orderList, (index + 1))
-              this.setState({orderList})
-              resolve()
-            }).catch(() => {
-              resolve()
-            })
-          })
-        },
-        width: '400px'
-      })
     })
   }
   /**
@@ -487,13 +401,8 @@ export default class OrderIncrease extends React.Component {
    */
   setFilterOrderListformData = (filterReq) => {
     this.getOrderListformData.productType = []
-    this.getOrderListformData.beginDate = ''
-    this.getOrderListformData.endDate = ''
-    this.getOrderListformData.payMonth = ''
-    this.getOrderListformData.city = []
-    this.getOrderListformData.isRead = -1
-    this.getOrderListformData.insuranceType = []
-    this.getOrderListformData.cancelOrderMark = 1
+    this.getOrderListformData.maxPayMonth = ''
+    this.getOrderListformData.cityList = []
     // 筛选参数拼装
     filterReq.map((item) => {
       if (item.selected.length > 0) {
@@ -501,24 +410,11 @@ export default class OrderIncrease extends React.Component {
           case '产品类型':
             this.getOrderListformData.productType = item.selected
             break
-          case '派单日期':
-            this.getOrderListformData.beginDate = item.selected[0].startValue === 'Invalid date' ? null : item.selected[0].startValue
-            this.getOrderListformData.endDate = item.selected[0].endValue === 'Invalid date' ? null : item.selected[0].endValue
-            break
           case '缴纳月份':
-            this.getOrderListformData.payMonth = item.selected[0]
+            this.getOrderListformData.maxPayMonth = item.selected[0]
             break
           case '缴纳城市':
-            this.getOrderListformData.city = item.selected
-            break
-          case '阅读状态':
-            this.getOrderListformData.isRead = item.selected[0]
-            break
-          case '未提交项':
-            this.getOrderListformData.insuranceType = item.selected
-            break
-          case '取消标记':
-            this.getOrderListformData.cancelOrderMark = item.selected[0]
+            this.getOrderListformData.cityList = item.selected
             break
           default:
             break
@@ -526,38 +422,6 @@ export default class OrderIncrease extends React.Component {
       }
       return true
     })
-  }
-  /**
-   * 打开指定申报材料幻灯片
-   * @param  {[type]} num [description]
-   * @return {[type]}     [description]
-   */
-  showDeclareInfo = (num) => {
-    this.setState({isDeclareInfoVisible: true, declareInfoInitialSlide: num})
-  }
-  /**
-   * 申报材料幻灯片却换时回调
-   * @param  {[type]} current [description]
-   * @return {[type]}         [description]
-   */
-  afterChange = (current) => {
-    let { orderList, totalCount } = this.state
-    current++
-    if (orderList.length <= current && totalCount > current) {
-      this.getList()
-    }
-  }
-  /**
-   * 渲染幻灯片
-   * @param  {[type]} item [description]
-   * @return {[type]}      [description]
-   */
-  carouselRenderItem = (item, index) => {
-    item.material.residenceNatureMap = item.material.residenceNatureMap ? item.material.residenceNatureMap : {key: '', value: ''}
-    item.material.residenceCityMap = item.material.residenceCityMap ? item.material.residenceCityMap : {key: '', value: ''}
-    return (
-      <Material item = {{ increase: item}} index={index} />
-    )
   }
 
   /**
@@ -592,19 +456,9 @@ export default class OrderIncrease extends React.Component {
   // }
   render() {
     console.log('-----------------render', this.props)
-    const { orderList, showFilter, checkedList, totalCount, isDeclareInfoVisible, declareInfoInitialSlide } = this.state
+    const { orderList, showFilter, checkedList, totalCount } = this.state
     const render = () => (
       <div>
-        <Carousel
-          onClose={() => {
-            this.setState({isDeclareInfoVisible: false})
-          }}
-          afterChange={(current) => this.afterChange(current)}
-          visible={isDeclareInfoVisible}
-          dataSource={orderList}
-          renderItem={ (item, index) => this.carouselRenderItem(item, index) }
-          initialSlide={declareInfoInitialSlide}
-        />
         <MoreFilter show={showFilter} filterItems={this.filterItems} closeFilter={this.closeFilter} saveFilter={this.saveFilter} ref={(ref) => (this.moreFilterEl = ref)}/>
         <div className="content">
           <div className="toolbar">
@@ -624,7 +478,7 @@ export default class OrderIncrease extends React.Component {
             {this.rendeFilterReqItem()}
           </div>
           <div className="check-all-wrap" style={{display: orderList.length > 0 ? 'block' : 'none'}}>
-            <Checkbox onChange={this.onCheckAllChange}> 全选</Checkbox> <span>已选中{checkedList.length}条</span> <a onClick={this.batchIncrease} className={checkedList.length <= 0 ? 'disabled' : ''}>批量增员完成</a>
+            <Checkbox onChange={this.onCheckAllChange}> 全选</Checkbox> <span>已选中{checkedList.length}条</span> <a onClick={this.batchDelect} className={checkedList.length <= 0 ? 'disabled' : ''}>批量减员完成</a>
           </div>
           <Checkbox.Group onChange={this.orderItemCheckOnchange} value={checkedList} style={{width: '100%'}} >
             <List
@@ -641,7 +495,7 @@ export default class OrderIncrease extends React.Component {
     )
 
     return (
-      <div className="container-order-increase">
+      <div className="container-order-delect">
         <Switch>
           <Route path={this.routePath + '/detail/:id'} component={OrderDetailInfo}/>
           <Route path={this.routePath} render={render}/>
@@ -653,10 +507,7 @@ export default class OrderIncrease extends React.Component {
   componentDidMount() {
     if (this.moreFilterEl) {
       moreScreening({screenType: '1'}).then(res => {
-        this.filterItems[3].list = res.cityList
-        this.filterItems[5].list = res.insuranceType
-        this.filterItems[6].list = res.cancelOrderMark ? res.cancelOrderMark : []
-        // console.log('moreScreening -filterItems', this.filterItems[3])
+        this.filterItems[2].list = res.cityList
         this.moreFilterEl.updateFilterItems(this.filterItems)
       })
     }

@@ -31,6 +31,7 @@ export default class MyCarousel extends React.Component {
     if (typeof onClose === 'function') {
       onClose()
     }
+    this.slider.goTo(this.nowSlide)
   }
 
   /**
@@ -40,7 +41,7 @@ export default class MyCarousel extends React.Component {
    */
   componentWillReceiveProps (nextProps) {
     if(nextProps.initialSlide !== this.props.initialSlide) {
-      this.nowSlide = nextProps.initialSlide? nextProps.initialSlide : 0
+      this.nowSlide = nextProps.initialSlide ? nextProps.initialSlide : 0
     }
   }
 
@@ -58,7 +59,7 @@ export default class MyCarousel extends React.Component {
    */
   componentDidUpdate () {
     const { dataSource } = this.props
-    this.slider.goTo(this.nowSlide)
+    // this.slider.goTo(this.nowSlide)
     let nextBtn = this.carouselEl.querySelector('.button-next')
     if (dataSource.length <= (this.nowSlide + 1)) {
       nextBtn.setAttribute('class', 'button-next disabled')
@@ -73,7 +74,10 @@ export default class MyCarousel extends React.Component {
     if (!className) {
       className = ''
     }
-    let display = visible ? 'block' : 'none'
+    let componentStyle = {}
+    if (!visible) {
+      componentStyle.top = '100%'
+    }
     /**
      * 渲染幻灯片内容
      * @param  {[type]} item [description]
@@ -90,7 +94,7 @@ export default class MyCarousel extends React.Component {
       infinite: false,
       initialSlide: this.nowSlide,
       afterChange: (current) => {
-        this.nowSlide = current
+        // this.nowSlide = current
         let prevBtn = this.carouselEl.querySelector('.button-prev')
         let nextBtn = this.carouselEl.querySelector('.button-next')
         if (current === 0) {
@@ -109,20 +113,20 @@ export default class MyCarousel extends React.Component {
         const lazyImages = document.querySelectorAll('.lazy-img-' + current)
         lazyImages.forEach(ele => {
           while (ele.firstChild) {
-            ele.removeChild(ele.firstChild);
+            ele.removeChild(ele.firstChild)
           }
-          var img = document.createElement("img");
-          img.setAttribute("src", ele.getAttribute('data-src'))
+          var img = document.createElement('img')
+          img.setAttribute('src', ele.getAttribute('data-src'))
           ele.appendChild(img)
         })
       }
     }
     return (
-      <div className={'component-carousel ' + className} ref={ref => this.carouselEl = ref } style={{display}} >
+      <div className={'component-carousel ' + className} ref={ref => (this.carouselEl = ref)} style={componentStyle} >
         <div className='button-close' onClick={this.close}><span className='icon-cross'></span></div>
         <div className='button-next' onClick={this.next}><span className='icon-12'></span></div>
         <div className='button-prev disabled' onClick={this.previous}><span className='icon-11'></span></div>
-        <Carousel {...carouselSeting} ref={ref => this.slider = ref }>
+        <Carousel {...carouselSeting} ref={ref => (this.slider = ref)}>
           {CarouselItem}
         </Carousel>
       </div>

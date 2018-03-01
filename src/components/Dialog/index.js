@@ -48,6 +48,54 @@ function confirm (props) {
   bodyDom.appendChild(wrapDom)
 }
 
+function info (props) {
+  let confirmEl
+  let {onCancel, onOk, content, bodyStyle, cancelText, mask, maskStyle, okText, width, zIndex, className, style} = props
+  if (typeof bodyStyle === 'undefined') {
+    bodyStyle = {
+      paddingTop: '30px'
+    }
+  }
+  let dialogProps = {bodyStyle, cancelText, mask, maskStyle, okText, width, zIndex, className, style}
+
+  let bodyDom = document.querySelector('body')
+  let wrapDom = document.createElement('div')
+  /**
+   * 取消时触发
+   * @return {[type]} [description]
+   */
+  const funOnCancel = () => {
+    if (typeof onCancel === 'function') {
+      onCancel(confirmEl)
+    }
+    bodyDom.removeChild(wrapDom)
+  }
+  /**
+   * 确认时触发
+   * @return {[type]} [description]
+   */
+  const funOnOk = async () => {
+    if (typeof onOk === 'function') {
+      await onOk(confirmEl)
+    }
+    bodyDom.removeChild(wrapDom)
+  }
+
+  let footer = (
+    <div>
+      <Button type='primary' onClick={funOnOk} style={{ width: 140, marginRight: 20 }}>{okText ? okText : '确认'}</Button>
+    </div>
+  )
+
+  render(
+    <ComponentDialog {...dialogProps} footer={footer} confirmLoading={false} visible={true} title={null} onCancel={funOnCancel} onOk={funOnOk} ref={ref => {
+      confirmEl = ref
+    }}>{content}</ComponentDialog>,
+    wrapDom
+  )
+  bodyDom.appendChild(wrapDom)
+}
+
 export default class ComponentDialog extends React.Component {
   state = {
     confirmLoading: this.props.confirmLoading === 'undefined' ? false : this.props.confirmLoading,
@@ -55,6 +103,7 @@ export default class ComponentDialog extends React.Component {
   }
 
   static confirm = confirm
+  static info = info
   /**
    * 隐藏当前弹窗
    * @return {[type]} [description]

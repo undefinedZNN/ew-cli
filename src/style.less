@@ -122,7 +122,28 @@
 .order-info-item {
   border-radius:2px;
   margin-bottom: 20px; 
-  &-title {
+  .tag-red {
+    border: 0;
+    color: #fff;
+    font-size: 12px;
+    border-radius: 2px;
+    background-color: #fe565b;
+  }
+  .tag-gray {
+    border: 0;
+    color: #b1b1b1;
+    font-size: 12px;
+    border-radius: 2px;
+    background-color: #ccc;
+  }
+  .tag-blue {
+    border: 0;
+    color: #1180ff;
+    font-size: 12px;
+    border-radius: 2px;
+    background-color: #b7d8ff;
+  }
+  .order-info-item-title {
     overflow: hidden;
     height:30px;
     padding: 0 20px;
@@ -155,7 +176,7 @@
       }
     }
   }
-  &-body {
+  .order-info-item-body {
     // background-color: blue;
     overflow: hidden;
     border-top: 0;
@@ -177,20 +198,7 @@
         &.status {
           padding: 0;
           width: 30px;
-          .tag-red {
-            border: 0;
-            color: #fff;
-            font-size: 12px;
-            border-radius: 2px;
-            background-color: #fe565b;
-          }
-          .tag-gray {
-            border: 0;
-            color: #b1b1b1;
-            font-size: 12px;
-            border-radius: 2px;
-            background-color: #ccc;
-          }
+
         }
         p {
           margin: 10px 0;
@@ -226,7 +234,7 @@
       }
     }
   }
-  &-footer {
+  .order-info-item-footer {
     &.gray {
       background-color: #efefef;
     }

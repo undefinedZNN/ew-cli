@@ -100,9 +100,11 @@ export function toast(message, duration = 2) {
  */
 export function publicLoading (visible) {
   const LoadingDom = document.querySelector('.public-loading')
-  if (visible === true) {
-    LoadingDom.setAttribute('style', 'display:block')
-  } else {
-    LoadingDom.setAttribute('style', 'display:none')
+  if (LoadingDom) {
+    if (visible === true) {
+      LoadingDom.setAttribute('style', 'display:block')
+    } else {
+      LoadingDom.setAttribute('style', 'display:none')
+    }
   }
 }
