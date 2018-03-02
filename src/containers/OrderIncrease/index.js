@@ -123,7 +123,7 @@ export default class OrderIncrease extends React.Component {
       pageNum: 1,
       pageSize: 20
     }
-    let {orderList, totalCount, nextPageNum} = this.state
+    let {orderList, totalCount, nextPageNum, checkedList} = this.state
     formData = {...this.getOrderListformData, ...formData}
 
     if (page === 'next') {
@@ -141,6 +141,7 @@ export default class OrderIncrease extends React.Component {
 
     if (type === 'new') {
       orderList = []
+      checkedList = []
     }
     if (formData.pageNum === 1) {
       // 添加下拉监听
@@ -154,7 +155,7 @@ export default class OrderIncrease extends React.Component {
         orderList = orderList.concat(res.list)
       }
       nextPageNum++
-      this.setState({orderList, nextPageNum, totalCount: res.totalCount})
+      this.setState({orderList, nextPageNum, totalCount: res.totalCount, checkedList})
       publicLoading(false)
     })
   }
@@ -481,6 +482,15 @@ export default class OrderIncrease extends React.Component {
   }
 
   /**
+   * 搜索订单
+   * @param  {[type]} value [description]
+   * @return {[type]}       [description]
+   */
+  searchOrder = (value) => {
+    this.getOrderListformData.name = value
+    this.getList('new', 1)
+  }
+  /**
    * 根据传入的筛选结果设置获取订单列表请求参数
    * @param  {[type]} filterReq [description]
    * @return {[type]}           [description]
@@ -611,8 +621,8 @@ export default class OrderIncrease extends React.Component {
             <Input.Search
               // defaultValue = {defaultOrderSearchValue}
               style={{ width: 634 }}
-              placeholder="请输入姓名、身份证号、商户订单号、手机号"
-              // onSearch={value => {this.searchOrder(value)}}
+              placeholder="请输入姓名、身份证号"
+              onSearch={value => this.searchOrder(value)}
               enterButton
             />
             <Button className="more-btn" onClick={this.showFilter}> 更多筛选</Button>
@@ -624,7 +634,7 @@ export default class OrderIncrease extends React.Component {
             {this.rendeFilterReqItem()}
           </div>
           <div className="check-all-wrap" style={{display: orderList.length > 0 ? 'block' : 'none'}}>
-            <Checkbox onChange={this.onCheckAllChange}> 全选</Checkbox> <span>已选中{checkedList.length}条</span> <a onClick={this.batchIncrease} className={checkedList.length <= 0 ? 'disabled' : ''}>批量增员完成</a>
+            <Checkbox checked={checkedList.length === orderList.length} onChange={this.onCheckAllChange}> 全选</Checkbox> <span>已选中{checkedList.length}条</span> <a onClick={this.batchIncrease} className={checkedList.length <= 0 ? 'disabled' : ''}>批量增员完成</a>
           </div>
           <Checkbox.Group onChange={this.orderItemCheckOnchange} value={checkedList} style={{width: '100%'}} >
             <List

@@ -1,21 +1,23 @@
 import './style.less'
-import _ from 'lodash'
 import React from 'react'
 import { Link } from 'react-router-dom'
 import { Input, Button, List, Alert } from 'antd'
 
 import { windowScrollTheEnd, recoverWindowScrollTheEnd } from '@/utils/utils'
 import { publicLoading, toast } from '@/utils/tools'
-import Dialog from '@/components/Dialog'
 import NoData from '@/components/NoData'
+import Carousel from '@/components/Carousel'
 import MoreFilter from '@/components/MoreFilter'
-import { getFailedOrderList, moreScreening, reduceComplete } from '@/services/order'
+import Material from '@/components/Carousel/material'
+import { getFailedOrderList, moreScreening } from '@/services/order'
 import OrderDetailInfo from '@/containers/OrderDetailInfo'
 import { Route, Switch } from 'react-router-dom'
 
 export default class OrderFail extends React.Component {
   routePath = this.props.match.path // 当前路由地址
   state = {
+    declareInfoInitialSlide: 0,
+    isDeclareInfoVisible: false,
     showFilter: false, // 更多筛选组件隐藏显示
     orderList: [], // 订单列表
     totalCount: 1, // 订单总数
@@ -66,6 +68,12 @@ export default class OrderFail extends React.Component {
         {key: '0', vlaue: 0}
       ],
       type: 'checkbox'
+    },
+    {
+      name: '失败类型',
+      selected: [],
+      list: [],
+      type: 'radio'
     }
   ]
 
@@ -133,7 +141,7 @@ export default class OrderFail extends React.Component {
         <div className="order-info-item-title">
           <div className="title-item black">
             订单号: {item.orderNo}
-            <Link to={this.routePath + '/detail/' + item.cancelOrderId}> 查看详情 </Link>
+            <Link to={this.routePath + '/detail/' + item.orderId}> 查看详情 </Link>
           </div>
         </div>
         <div className="order-info-item-body">
@@ -156,10 +164,11 @@ export default class OrderFail extends React.Component {
               <p>缴费比例：{item.companyRatio}% + {item.personRatio}%</p>
             </div>
             <ul className="col operation undashed">
-              <li><a> 申报材料 </a></li>
+              <li><a onClick={() => this.showDeclareInfo(index)}> 申报材料 </a></li>
             </ul>
           </div>
         </div>
+        <div className="order-info-item-footer gray">失败原因: {item.failReason}</div>
       </div>
     )
   }
@@ -179,89 +188,6 @@ export default class OrderFail extends React.Component {
     this.setState({showFilter: false})
   }
 
-  /**
-   * 批量减员订单
-   * @return {[type]} [description]
-   */
-  batchDelect = () => {
-    let {checkedList, orderList} = this.state
-    if(checkedList.length === 0) {
-      return
-    }
-
-    Dialog.confirm({
-      content: (<div>
-        共{checkedList.length}条，请确认已经处理完毕<br/>
-        确认后将无法确认，是否确认
-      </div>),
-      onCancel: (e) => {
-        console.log('onCancel', e)
-      },
-      onOk: (e) => {
-        let formData = {
-          applyIdList: [],
-          idList: [],
-          unpaidOrderIdList: []
-        }
-        checkedList.map(ov => {
-          formData.applyIdList.push({applyId: orderList[ov].applyId})
-          formData.idList.push({id: orderList[ov].id})
-          formData.unpaidOrderIdList.push({unpaidOrderId: orderList[ov].unpaidOrderId})
-        })
-        // recruitOverOrder()
-        return new Promise((resolve, reject) => {
-          reduceComplete(formData).then(() => {
-            toast('操作成功')
-            resolve()
-          }).catch((err) => {
-            console.log('===========', err)
-            // errorMsg(err.msg, 9999)
-            resolve()
-          })
-        })
-      },
-      width: '400px'
-    })
-  }
-
-  /**
-   * 减员
-   * @return {[type]} [description]
-   */
-  delect = (index) => {
-    Dialog.confirm({
-      content: (<div>
-        请确认已经处理完毕<br/>
-        确认后将无法确认，是否确认
-      </div>),
-      onCancel: (e) => {
-        console.log('onCancel', e)
-      },
-      onOk: (e) => {
-        let formData = {
-          applyIdList: [],
-          idList: [],
-          unpaidOrderIdList: []
-        }
-        let {orderList} = this.state
-        formData.applyIdList.push({applyId: orderList[index].applyId})
-        formData.idList.push({id: orderList[index].id})
-        formData.unpaidOrderIdList.push({unpaidOrderId: orderList[index].unpaidOrderId})
-        // recruitOverOrder()
-        return new Promise((resolve, reject) => {
-          reduceComplete(formData).then(() => {
-            toast('操作成功')
-            orderList = _.drop(orderList, (index + 1))
-            this.setState({orderList})
-            resolve()
-          }).catch(() => {
-            resolve()
-          })
-        })
-      },
-      width: '400px'
-    })
-  }
   /**
    * 渲染筛选内容tag
    * @return {[type]} [description]
@@ -360,14 +286,24 @@ export default class OrderFail extends React.Component {
   }
 
   /**
+   * 搜索订单
+   * @param  {[type]} value [description]
+   * @return {[type]}       [description]
+   */
+  searchOrder = (value) => {
+    this.getOrderListformData.name = value
+    this.getList('new', 1)
+  }
+  /**
    * 根据传入的筛选结果设置获取订单列表请求参数
    * @param  {[type]} filterReq [description]
    * @return {[type]}           [description]
    */
   setFilterOrderListformData = (filterReq) => {
     this.getOrderListformData.productType = []
-    this.getOrderListformData.maxPayMonth = ''
-    this.getOrderListformData.cityList = []
+    this.getOrderListformData.payMonth = ''
+    this.getOrderListformData.city = []
+    this.getOrderListformData.failType = ''
     // 筛选参数拼装
     filterReq.map((item) => {
       if (item.selected.length > 0) {
@@ -376,10 +312,13 @@ export default class OrderFail extends React.Component {
             this.getOrderListformData.productType = item.selected
             break
           case '缴纳月份':
-            this.getOrderListformData.maxPayMonth = item.selected[0]
+            this.getOrderListformData.payMonth = item.selected[0]
             break
           case '缴纳城市':
-            this.getOrderListformData.cityList = item.selected
+            this.getOrderListformData.city = item.selected
+            break
+          case '失败类型':
+            this.getOrderListformData.failType = item.selected[0]
             break
           default:
             break
@@ -388,20 +327,61 @@ export default class OrderFail extends React.Component {
       return true
     })
   }
+  /**
+   * 渲染幻灯片
+   * @param  {[type]} item [description]
+   * @return {[type]}      [description]
+   */
+  carouselRenderItem = (item, index) => {
+    // item.material.residenceNatureMap = item.material.residenceNatureMap ? item.material.residenceNatureMap : {key: '', value: ''}
+    // item.material.residenceCityMap = item.material.residenceCityMap ? item.material.residenceCityMap : {key: '', value: ''}
+    return (<Material item = {{fail: item}} index={index} />)
+  }
+
+  /**
+   * 打开指定申报材料幻灯片
+   * @param  {[type]} num [description]
+   * @return {[type]}     [description]
+   */
+  showDeclareInfo = (num) => {
+    this.setState({isDeclareInfoVisible: true, declareInfoInitialSlide: num})
+  }
+  /**
+   * 申报材料幻灯片却换时回调
+   * @param  {[type]} current [description]
+   * @return {[type]}         [description]
+   */
+  afterChange = (current) => {
+    let { orderList, totalCount } = this.state
+    current++
+    if (orderList.length <= current && totalCount > current) {
+      this.getList()
+    }
+  }
 
   render() {
     console.log('-----------------render', this.props)
-    const { orderList, showFilter, totalCount } = this.state
+    const { orderList, showFilter, totalCount, isDeclareInfoVisible, declareInfoInitialSlide } = this.state
     const render = () => (
       <div>
+        <Carousel
+          onClose={() => {
+            this.setState({isDeclareInfoVisible: false})
+          }}
+          afterChange={(current) => this.afterChange(current)}
+          visible={isDeclareInfoVisible}
+          dataSource={orderList}
+          renderItem={ (item, index) => this.carouselRenderItem(item, index) }
+          initialSlide={declareInfoInitialSlide}
+        />
         <MoreFilter show={showFilter} filterItems={this.filterItems} closeFilter={this.closeFilter} saveFilter={this.saveFilter} ref={(ref) => (this.moreFilterEl = ref)}/>
         <div className="content">
           <div className="toolbar">
             <Input.Search
               // defaultValue = {defaultOrderSearchValue}
               style={{ width: 634 }}
-              placeholder="请输入姓名、身份证号、商户订单号、手机号"
-              // onSearch={value => {this.searchOrder(value)}}
+              placeholder="请输入姓名、身份证号"
+              onSearch={value => this.searchOrder(value)}
               enterButton
             />
             <Button className="more-btn" onClick={this.showFilter}> 更多筛选</Button>
@@ -433,8 +413,9 @@ export default class OrderFail extends React.Component {
 
   componentDidMount() {
     if (this.moreFilterEl) {
-      moreScreening({screenType: '1'}).then(res => {
+      moreScreening({screenType: '3'}).then(res => {
         this.filterItems[2].list = res.cityList
+        this.filterItems[3].list = res.defeatedType
         this.moreFilterEl.updateFilterItems(this.filterItems)
       })
     }

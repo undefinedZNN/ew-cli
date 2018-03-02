@@ -2,7 +2,7 @@ import './style.less'
 import _ from 'lodash'
 import React from 'react'
 import { Link } from 'react-router-dom'
-import { Input, Button, List, Checkbox, Alert } from 'antd'
+import { Input, Button, List, Checkbox, Alert, Select } from 'antd'
 
 import { windowScrollTheEnd, recoverWindowScrollTheEnd } from '@/utils/utils'
 import { publicLoading, toast } from '@/utils/tools'
@@ -11,7 +11,7 @@ import NoData from '@/components/NoData'
 import Carousel from '@/components/Carousel'
 import MoreFilter from '@/components/MoreFilter'
 import Material from '@/components/Carousel/material'
-import { moreScreening, addOrderDownload, reduceComplete, waitCancelOrderQuery } from '@/services/order'
+import { moreScreening, addOrderDownload, confirmCancel, waitCancelOrderQuery, refuseToLiftReason, refuseToLift } from '@/services/order'
 import OrderDetailInfo from '@/containers/OrderDetailInfo'
 import { Route, Switch } from 'react-router-dom'
 
@@ -101,7 +101,7 @@ export default class OrderCancel extends React.Component {
       pageNum: 1,
       pageSize: 20
     }
-    let {orderList, totalCount, nextPageNum} = this.state
+    let {orderList, totalCount, nextPageNum, checkedList} = this.state
     formData = {...this.getOrderListformData, ...formData}
 
     if (page === 'next') {
@@ -119,6 +119,7 @@ export default class OrderCancel extends React.Component {
 
     if (type === 'new') {
       orderList = []
+      checkedList = []
     }
     if (formData.pageNum === 1) {
       // 添加下拉监听
@@ -132,7 +133,7 @@ export default class OrderCancel extends React.Component {
         orderList = orderList.concat(res.list)
       }
       nextPageNum++
-      this.setState({orderList, nextPageNum, totalCount: res.totalCount})
+      this.setState({orderList, nextPageNum, totalCount: res.totalCount, checkedList})
       publicLoading(false)
     })
   }
@@ -177,8 +178,8 @@ export default class OrderCancel extends React.Component {
               <p>缴纳月：{item.payMonth}</p>
             </div>
             <ul className="col operation undashed">
-              <li><a> 同意 </a></li>
-              <li><a> 驳回 </a></li>
+              <li><a onClick={() => this.agree(index)}> 同意 </a></li>
+              <li><a onClick={() => this.turnDown(index)}> 驳回 </a></li>
               <li><a onClick={() => this.showDeclareInfo(index)}> 申报材料 </a></li>
             </ul>
           </div>
@@ -233,7 +234,7 @@ export default class OrderCancel extends React.Component {
    * 批量减员订单
    * @return {[type]} [description]
    */
-  batchDelect = () => {
+  batchAgree = () => {
     let {checkedList, orderList} = this.state
     if(checkedList.length === 0) {
       return
@@ -249,23 +250,17 @@ export default class OrderCancel extends React.Component {
       },
       onOk: (e) => {
         let formData = {
-          applyIdList: [],
-          idList: [],
-          unpaidOrderIdList: []
+          orderList: []
         }
         checkedList.map(ov => {
-          formData.applyIdList.push({applyId: orderList[ov].applyId})
-          formData.idList.push({id: orderList[ov].id})
-          formData.unpaidOrderIdList.push({unpaidOrderId: orderList[ov].unpaidOrderId})
+          formData.orderList.push({id: orderList[ov].cancelOrderId})
         })
         // recruitOverOrder()
         return new Promise((resolve, reject) => {
-          reduceComplete(formData).then(() => {
+          confirmCancel(formData).then(() => {
             toast('操作成功')
             resolve()
-          }).catch((err) => {
-            console.log('===========', err)
-            // errorMsg(err.msg, 9999)
+          }).catch(() => {
             resolve()
           })
         })
@@ -278,28 +273,23 @@ export default class OrderCancel extends React.Component {
    * 减员
    * @return {[type]} [description]
    */
-  delect = (index) => {
+  agree = (index) => {
     Dialog.confirm({
       content: (<div>
-        请确认已经处理完毕<br/>
-        确认后将无法确认，是否确认
+        是否同意取消该用户订单请求？
       </div>),
       onCancel: (e) => {
         console.log('onCancel', e)
       },
       onOk: (e) => {
         let formData = {
-          applyIdList: [],
-          idList: [],
-          unpaidOrderIdList: []
+          orderList: []
         }
         let {orderList} = this.state
-        formData.applyIdList.push({applyId: orderList[index].applyId})
-        formData.idList.push({id: orderList[index].id})
-        formData.unpaidOrderIdList.push({unpaidOrderId: orderList[index].unpaidOrderId})
+        formData.orderList.push({id: orderList[index].cancelOrderId})
         // recruitOverOrder()
         return new Promise((resolve, reject) => {
-          reduceComplete(formData).then(() => {
+          confirmCancel(formData).then(() => {
             toast('操作成功')
             orderList = _.drop(orderList, (index + 1))
             this.setState({orderList})
@@ -310,6 +300,68 @@ export default class OrderCancel extends React.Component {
         })
       },
       width: '400px'
+    })
+  }
+
+  /**
+   * 驳回取消订单
+   * @param  {[type]} index [description]
+   * @return {[type]}       [description]
+   */
+  turnDown = (index) => {
+    publicLoading(true)
+    let failReasionList = []
+    let {orderList} = this.state
+    let Option = Select.Option
+    let selectedIndex = 0
+    let options = []
+    refuseToLiftReason().then((res) => {
+      publicLoading(false)
+      failReasionList = res.dismissTheReason
+      failReasionList.map((item, reasonIndex) => {
+        options.push(<Option key={reasonIndex} value={reasonIndex}>{item.value}</Option>)
+      })
+
+      let failDeclareMsg = (
+        <div className="increase-fail-declare-body">
+          <h3>是否驳回取消该用户订单请求？</h3>
+          <div>
+            <span>选择驳回原因 </span>
+            <Select defaultValue={selectedIndex} onChange={value => {
+              selectedIndex = value
+            }}>
+              {options}
+            </Select>
+          </div>
+        </div>
+      )
+
+      Dialog.confirm({
+        okText: '确认驳回',
+        content: failDeclareMsg,
+        onCancel: (e) => {
+          console.log('onCancel', e)
+        },
+        onOk: (e) => {
+          console.log('onOk', failReasionList[selectedIndex])
+          return new Promise((resolve, reject) => {
+            let formData = {
+              id: orderList[index].cancelId,
+              cancelOrderId: orderList[index].cancelOrderId,
+              applyId: orderList[index].applyId,
+              rejectReason: failReasionList[selectedIndex].value
+            }
+            refuseToLift(formData).then(() => {
+              orderList = _.drop(orderList, (index + 1))
+              this.setState({orderList})
+              resolve()
+            }).catch(() => {
+              resolve()
+            })
+          })
+        },
+        width: '450px'
+      })
     })
   }
   /**
@@ -409,6 +461,15 @@ export default class OrderCancel extends React.Component {
     this.getList('new', 1)
   }
 
+  /**
+   * 搜索订单
+   * @param  {[type]} value [description]
+   * @return {[type]}       [description]
+   */
+  searchOrder = (value) => {
+    this.getOrderListformData.name = value
+    this.getList('new', 1)
+  }
   /**
    * 根据传入的筛选结果设置获取订单列表请求参数
    * @param  {[type]} filterReq [description]
@@ -525,8 +586,8 @@ export default class OrderCancel extends React.Component {
             <Input.Search
               // defaultValue = {defaultOrderSearchValue}
               style={{ width: 634 }}
-              placeholder="请输入姓名、身份证号、商户订单号、手机号"
-              // onSearch={value => {this.searchOrder(value)}}
+              placeholder="请输入姓名、身份证号"
+              onSearch={value => this.searchOrder(value)}
               enterButton
             />
             <Button className="more-btn" onClick={this.showFilter}> 更多筛选</Button>
@@ -538,7 +599,7 @@ export default class OrderCancel extends React.Component {
             {this.rendeFilterReqItem()}
           </div>
           <div className="check-all-wrap" style={{display: orderList.length > 0 ? 'block' : 'none'}}>
-            <Checkbox onChange={this.onCheckAllChange}> 全选</Checkbox> <span>已选中{checkedList.length}条</span> <a onClick={this.batchDelect} className={checkedList.length <= 0 ? 'disabled' : ''}>批量减员完成</a>
+            <Checkbox checked={checkedList.length === orderList.length} onChange={this.onCheckAllChange}> 全选</Checkbox> <span>已选中{checkedList.length}条</span> <a onClick={this.batchAgree} className={checkedList.length <= 0 ? 'disabled' : ''}>批量同意</a>
           </div>
           <Checkbox.Group onChange={this.orderItemCheckOnchange} value={checkedList} style={{width: '100%'}} >
             <List

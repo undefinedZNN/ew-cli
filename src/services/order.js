@@ -64,7 +64,6 @@ export async function confirmFail(params) {
   return callApi.post(entrySrc, formData)
 }
 
-// {"order.v1.orderQuery.moreScreening":{"screenType":"1","appId":"wowoohr_my_vendor","token":"ExdSf7V716SQDgaTbzVABx","userId":"2260fb99cfb9fd8d","sign":"5742174e86e50cb525942f5c43cd48be382097b7"}}
 export async function moreScreening(params) {
   let formData = {
     'order.v1.orderQuery.moreScreening': {
@@ -193,3 +192,47 @@ export async function getFailedOrderList(params) {
   }
   return callApi.post(entrySrc, formData)
 }
+
+/**
+ * 确认取消订单
+ * @param  {[type]} params [description]
+ * @return {[type]}        [description]
+ */
+export async function confirmCancel(params) {
+  let formData = {
+    'order.v1.orderQuery.getFailedOrderList': {
+      appId,
+      ...params
+    }
+  }
+  return callApi.post(entrySrc, formData)
+}
+
+/**
+ * 获取订单驳回原因
+ * @return {[type]} [description]
+ */
+export async function refuseToLiftReason() {
+  let formData = {
+    'order.v1.orderOperate.refuseToLiftReason': {
+      appId
+    }
+  }
+  return callApi.post(entrySrc, formData)
+}
+
+/**
+ * 驳回待取消订单
+ * @param  {[type]} params [description]
+ * @return {[type]}        [description]
+ */
+export async function refuseToLift(params) {
+  let formData = {
+    'order.v1.orderOperate.refuseToLift': {
+      appId,
+      ...params
+    }
+  }
+  return callApi.post(entrySrc, formData)
+}
+// {"order.v1.orderOperate.refuseToLift":{"id":"fd805f7f2f0362f2","cancelOrderId":"3c114736c9d05b4e","applyId":"eaabbe3ae119c536","rejectReason":"申报成功","appId":"wowoohr_my_vendor","token":"FezkJmyarPTZVtGvnDZyFB","userId":"4361ee267c9b71f2","sign":"308574f414e4467060af5c0de9d1b210b1cb9fe4"}}

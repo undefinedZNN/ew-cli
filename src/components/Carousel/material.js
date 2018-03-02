@@ -158,41 +158,34 @@ export default class Material extends React.Component {
           </div>
         )
       case 'all':
+        let allInfo
+        allInfo = this.state.all
         return (
           <div>
             <div className='order-info-carousel-slide-header'>
-              材料详情
+             缴纳详情
             </div>
             <div className='detail'>
               <Row>
                 <Col span={12}>
-                  <h3 style={{'fontSize': '1.75rem'}}>{this.state.all.name}</h3>
-                  <p >身份证： {this.state.all.idCard}</p>
-                  <p >缴纳城市：{this.state.all.cityMap.value}</p>
-                  <p style={{'paddingBottom': '20px'}} >申报产品：{this.state.all.applyProductName.value}</p>
+                  <h3 style={{'fontSize': '1.75rem'}}>{allInfo.name}</h3>
+                  <p >身份证： {allInfo.idCard}</p>
+                  <p >缴纳城市：{allInfo.cityMap.value}</p>
+                  <p style={{'paddingBottom': '20px'}} >申报产品：{allInfo.applyProductName.value}</p>
                   {
-                    this.state.all.residenceNatureMap.value ? (
-                      <p >户籍属性：{this.state.all.residenceNatureMap.value}</p>
+                    allInfo.residenceNatureMap ? (<p >户籍属性：{allInfo.residenceNatureMap.value}</p>) : null
+                  }
+                  {
+                    allInfo.residenceCityMap ? (<p >户籍所在地：{allInfo.residenceCityMap.value}</p>) : null
+                  }
+                  {
+                    allInfo.socialSecurityNumber ? (
+                      <p >社保编号：{allInfo.socialSecurityNumber}</p>
                     ) : null
                   }
                   {
-                    this.state.all.residenceCityMap.value ? (
-                      <p >户籍所在地：{this.state.all.residenceCityMap.value}</p>
-                    ) : null
-                  }
-                  {
-                    this.state.all.educationMap ? (
-                      <p >学历：{this.state.all.educationMap.value}</p>
-                    ) : null
-                  }
-                  {
-                    this.state.all.socialSecurityNumber ? (
-                      <p >社保编号：{this.state.all.socialSecurityNumber}</p>
-                    ) : null
-                  }
-                  {
-                    this.state.all.fundAccount ? (
-                      <p >公积金编号：{this.state.all.fundAccount}</p>
+                    allInfo.fundAccount ? (
+                      <p >公积金编号：{allInfo.fundAccount}</p>
                     ) : null
                   }
                 </Col>
@@ -202,9 +195,9 @@ export default class Material extends React.Component {
                       <div style={{'paddingBottom': '20px'}}>身份证正面照</div>
                       {
                         this.state.index === 0 ? (
-                          <img src={this.state.all.idCardPicUrlFront.value} height='150' alt="身份证正面照"/>
+                          <img src={allInfo.idCardPicUrlFront.value} height='150' alt="身份证正面照"/>
                         ) : (
-                          <div data-src={this.state.all.idCardPicUrlFront.value} className = {`lazy-img lazy-img-${this.props.index}`}>
+                          <div data-src={allInfo.idCardPicUrlFront.value} className = {`lazy-img lazy-img-${this.props.index}`}>
                           </div>
                         )
                       }
@@ -213,60 +206,64 @@ export default class Material extends React.Component {
                       <div style={{'paddingBottom': '20px'}}>身份证背面照</div>
                       {
                         this.state.index === 0 ? (
-                          <img src={this.state.all.idCardPicUrlBack.value} height='150' alt="身份证背面照"/>
+                          <img src={allInfo.idCardPicUrlBack.value} height='150' alt="身份证背面照"/>
                         ) : (
-                          <div data-src={this.state.all.idCardPicUrlBack.value} className = {`lazy-img lazy-img-${this.props.index}`}>
+                          <div data-src={allInfo.idCardPicUrlBack.value} className = {`lazy-img lazy-img-${this.props.index}`}>
                           </div>
                         )
                       }
                     </Col>
                   </Row>
                 </Col>
-                {
-                  this.state.all.hkPicUrlOfHomepageMap ? (
-                    <Col span={12}>
-                      <div style={{'paddingBottom': '20px', 'paddingTop': '20px'}}>户口本首页照片</div>
+              </Row>
+            </div>
+          </div>
+        )
+      case 'fail':
+        let failInfo
+        failInfo = this.state.fail
+        return (
+          <div>
+            <div className='order-info-carousel-slide-header'>
+              订单号：{failInfo.orderNo}
+            </div>
+            <div className='detail'>
+              <Row>
+                <Col span={12}>
+                  <h3 style={{'fontSize': '1.75rem'}}>{failInfo.name}</h3>
+                  <p >身份证： {failInfo.idCard}</p>
+                  <p >缴纳城市：{failInfo.cityMap.value}</p>
+                  <p style={{'paddingBottom': '20px'}} >申报产品：{failInfo.applyProductMap.value} ({failInfo.orderProductTypeMap.value})</p>
+                  {
+                    failInfo.material ? (<p >户籍属性：{failInfo.material.residenceNatureMap.value}</p>) : null
+                  }
+                </Col>
+                <Col span={12}>
+                  <Row>
+                    <Col span={24} style={{'paddingBottom': '20px'}}>
+                      <div style={{'paddingBottom': '20px'}}>身份证正面照</div>
                       {
                         this.state.index === 0 ? (
-                          <img src={this.state.all.hkPicUrlOfHomepageMap.value} height='150' alt="户口本首页照片"/>
+                          <img src={failInfo.material.idCardPicUrlAMap.value} height='150' alt="身份证正面照"/>
                         ) : (
-                          <div data-src={this.state.all.hkPicUrlOfHomepageMap.value} className = {`lazy-img lazy-img-${this.props.index}`}>
+                          <div data-src={failInfo.material.idCardPicUrlAMap.value} className = {`lazy-img lazy-img-${this.props.index}`}>
                           </div>
                         )
                       }
                     </Col>
-                  ) : null
-                }
-                {
-                  this.state.all.hkPicUrlOfOwnpageMap ? (
-                    <Col span={12}>
-                      <div style={{'paddingBottom': '20px', 'paddingTop': '20px'}}>户口本本人页照片</div>
+                    <Col span={24}>
+                      <div style={{'paddingBottom': '20px'}}>身份证背面照</div>
                       {
                         this.state.index === 0 ? (
-                          <img src={this.state.all.hkPicUrlOfOwnpageMap.value} height='150' alt="户口本本人页照片"/>
+                          <img src={failInfo.material.idCardPicUrlBMap.value} height='150' alt="身份证背面照"/>
                         ) : (
-                          <div data-src={this.state.all.hkPicUrlOfOwnpageMap.value} className = {`lazy-img lazy-img-${this.props.index}`}>
+                          <div data-src={failInfo.material.idCardPicUrlBMap.value} className = {`lazy-img lazy-img-${this.props.index}`}>
                           </div>
                         )
                       }
                     </Col>
-                  ) : null
-                }
-                {
-                  this.state.all.hkPicUrlOfHeaderpageMap ? (
-                    <Col span={12}>
-                      <div style={{'paddingBottom': '20px', 'paddingTop': '20px'}}>户口本户主页照片</div>
-                      {
-                        this.state.index === 0 ? (
-                          <img src={this.state.all.hkPicUrlOfHeaderpageMap.value} height='150' alt="户口本户主页照片"/>
-                        ) : (
-                          <div data-src={this.state.all.hkPicUrlOfHeaderpageMap.value} className = {`lazy-img lazy-img-${this.props.index}`}>
-                          </div>
-                        )
-                      }
-                    </Col>
-                  ) : null
-                }
+                  </Row>
+                </Col>
               </Row>
             </div>
           </div>
